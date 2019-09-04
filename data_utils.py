@@ -10,7 +10,7 @@ def summary(df):
     nan_count = df.isnull().sum().to_frame().transpose().rename(index={0: 'NAN count'})
     nan_pct = (df.isnull().sum() / len(df.index) * 100).to_frame().transpose().rename(index={0: 'NAN percent'})
     nunique = df.nunique().to_frame().transpose().rename(index={0: 'unique count'})
-    rep = (len(df.index) / df.nunique()).to_frame().transpose().rename(index={0: 'repetion'})
+    rep = (len(df.index) / df.nunique()).to_frame().transpose().rename(index={0: 'repetition'})
 
     summary_df = summary_df.append([nunique, nan_count, nan_pct, rep], sort=False)
     return summary_df
