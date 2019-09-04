@@ -20,7 +20,6 @@ def summary_database(engine, tables):
     res = pd.DataFrame()
     empty_tables = []
     for t in tqdm(tables):
-        #print('Reading table ' + t)
         try:
             df = pd.read_sql('SELECT * FROM ' + t, engine)
             sm = summary(df).T
@@ -30,7 +29,6 @@ def summary_database(engine, tables):
             sm = sm[['table', 'column']+cols[:-2]]
             res = res.append(sm, ignore_index=True)
         except:
-            #print("Table", t, "has no data")
             empty_tables.append(t)
     return res, empty_tables
 

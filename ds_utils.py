@@ -1,6 +1,7 @@
 from sklearn.metrics.pairwise import linear_kernel
 import numpy as np
 
+
 # To deal with large memory data, chunk method is necessary
 def chunk_linear_kernel(matrix, chunk_size):
     res = []
