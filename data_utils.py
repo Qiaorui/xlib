@@ -26,6 +26,8 @@ def summary_database(engine, tables):
             sm['column'] = sm.index
             sm['table'] = t
             cols = sm.columns.values.tolist()
+            if 'top' in cols or 'freq' in cols:
+                cols = [x for x in cols if x not in ['top', 'freq', 'unique']]
             sm = sm[['table', 'column']+cols[:-2]]
             res = res.append(sm, ignore_index=True)
         except:
