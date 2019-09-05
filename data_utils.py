@@ -6,11 +6,11 @@ from tqdm import tqdm
 # describe table + nan count, nan pct and unique count
 def summary(df):
     summary_df = df.describe()
-
+    summary_df.drop(['top', 'freq', 'unique'], axis=1, inplace=True)
     nan_count = df.isnull().sum().to_frame().transpose().rename(index={0: 'NAN count'})
     nan_pct = (df.isnull().sum() / len(df.index) * 100).to_frame().transpose().rename(index={0: 'NAN percent'})
-    nunique = df.nunique().to_frame().transpose().rename(index={0: 'unique count'})
-    rep = ((len(df.index) - df.isnull().sum()) / df.nunique()).to_frame().transpose().rename(index={0: 'repetition'})
+    nunique = df.nunique().to_frame().transpose().rename(index={0: 'unique'})
+    rep = ((len(df.index) - df.isnull().sum()) / df.nunique()).to_frame().transpose().rename(index={0: 'freq'})
 
     summary_df = summary_df.append([nunique, nan_count, nan_pct, rep], sort=False)
     return summary_df
@@ -26,8 +26,6 @@ def summary_database(engine, tables):
             sm['column'] = sm.index
             sm['table'] = t
             cols = sm.columns.values.tolist()
-            if 'top' in cols or 'freq' in cols:
-                cols = [x for x in cols if x not in ['top', 'freq', 'unique']]
             sm = sm[['table', 'column']+cols[:-2]]
             res = res.append(sm, ignore_index=True)
         except:
