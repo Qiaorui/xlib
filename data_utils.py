@@ -6,7 +6,8 @@ from tqdm import tqdm
 # describe table + nan count, nan pct and unique count
 def summary(df):
     summary_df = df.describe()
-    summary_df.drop(['top', 'freq', 'unique'], axis=1, inplace=True)
+    if 'top' in summary_df.index.values:
+        summary_df.drop(['top', 'freq', 'unique'], axis=0, inplace=True)
     nan_count = df.isnull().sum().to_frame().transpose().rename(index={0: 'NAN count'})
     nan_pct = (df.isnull().sum() / len(df.index) * 100).to_frame().transpose().rename(index={0: 'NAN percent'})
     nunique = df.nunique().to_frame().transpose().rename(index={0: 'unique'})
@@ -22,14 +23,16 @@ def summary_database(engine, tables):
     for t in tqdm(tables):
         try:
             df = pd.read_sql('SELECT * FROM ' + t, engine)
+            if len(df.index) == 0:
+                empty_tables.append(t)
             sm = summary(df).T
             sm['column'] = sm.index
             sm['table'] = t
             cols = sm.columns.values.tolist()
             sm = sm[['table', 'column']+cols[:-2]]
             res = res.append(sm, ignore_index=True)
-        except:
-            empty_tables.append(t)
+        except Exception as e:
+            print(e)
     return res, empty_tables
 
 
