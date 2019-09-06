@@ -8,12 +8,14 @@ def summary(df):
     summary_df = df.describe()
     if 'top' in summary_df.index.values:
         summary_df.drop(['top', 'freq', 'unique'], axis=0, inplace=True)
+
     nan_count = df.isnull().sum().to_frame().transpose().rename(index={0: 'NAN count'})
     nan_pct = (df.isnull().sum() / len(df.index) * 100).to_frame().transpose().rename(index={0: 'NAN percent'})
     nunique = df.nunique().to_frame().transpose().rename(index={0: 'unique'})
-    rep = ((len(df.index) - df.isnull().sum()) / df.nunique()).to_frame().transpose().rename(index={0: 'freq'})
+    rep = ((len(df.index) - df.isnull().sum()) / df.nunique()).to_frame().transpose().rename(index={0: 'repetition'})
 
     summary_df = summary_df.append([nunique, nan_count, nan_pct, rep], sort=False)
+    summary_df.loc['count'] =  (len(df.index) - df.isnull().sum()).tolist()
     return summary_df
 
 
