@@ -1,6 +1,10 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import time
+import os
+from glob import glob
+from pathlib import Path
 
 
 # describe table + nan count, nan pct and unique count
@@ -15,26 +19,65 @@ def summary(df):
     rep = ((len(df.index) - df.isnull().sum()) / df.nunique()).to_frame().transpose().rename(index={0: 'repetition'})
 
     summary_df = summary_df.append([nunique, nan_count, nan_pct, rep], sort=False)
-    summary_df.loc['count'] =  (len(df.index) - df.isnull().sum()).tolist()
+
     return summary_df
 
 
 def summary_database(engine, tables):
-    res = pd.DataFrame()
-    empty_tables = []
-    for t in tqdm(tables):
-        try:
+    if not os.path.exists('tmp'):
+        os.makedirs('tmp')
+
+    current_files = glob.glob("tmp/*.csv")
+    seen_tables = [Path(x).stem for x in current_files]
+
+    empty_table_path = "tmp/empty_tables.txt"
+    if os.path.exists(empty_table_path):
+        with open(empty_table_path, 'r') as f:
+            content = f.read()
+            seen_tables.extend(content.split())
+
+    with tqdm(tables) as pbar:
+        for t in tables:
+            pbar.set_postfix(DB=t, refresh=True)
+            table_file = "tmp/" + t + ".csv"
+            if t in seen_tables:
+                time.sleep(0.1)
+                pbar.update(1)
+                continue
+
             df = pd.read_sql('SELECT * FROM ' + t, engine)
             if len(df.index) == 0:
-                empty_tables.append(t)
+                append_write = 'a' if os.path.exists(empty_table_path) else 'w'
+                with open(empty_table_path, append_write) as f:
+                    f.write(t + "\n")
+                pbar.update(1)
+                continue
             sm = summary(df).T
             sm['column'] = sm.index
             sm['table'] = t
             cols = sm.columns.values.tolist()
-            sm = sm[['table', 'column']+cols[:-2]]
-            res = res.append(sm, ignore_index=True)
-        except Exception as e:
-            print(e)
+            sm = sm[['table', 'column'] + cols[:-2]]
+            sm.to_csv(table_file, index=False)
+            pbar.update(1)
+
+    empty_tables = []
+    with open(empty_table_path, 'r') as f:
+        content = f.read()
+        empty_tables = content.split()
+
+    res = pd.DataFrame()
+    with tqdm(tables) as pbar:
+        for t in tables:
+            table_file = "tmp/" + t + ".csv"
+            if t in empty_tables:
+                time.sleep(0.1)
+                pbar.update(1)
+                continue
+
+            df = pd.read_csv(table_file, index_col=None, header=0)
+            res = res.append(df, ignore_index=True)
+            pbar.update(1)
+
     return res, empty_tables
 
 
