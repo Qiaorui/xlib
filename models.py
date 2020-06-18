@@ -176,7 +176,7 @@ class ItemSimilarityRecommender:
             print("R shape:", R.shape)
 
         # Filter S
-        clicked_S_idx = [self.S.columns.get_loc(c) for c in cooMat.map_items.keys()]
+        clicked_S_idx = [self.S.columns.get_loc(c) for c in cooMat.map_back_items.values()]
         local_S = self.S.loc[clicked_S_idx, :]
         if verbose:
             print("local S shape:", local_S.shape)
@@ -191,7 +191,7 @@ class ItemSimilarityRecommender:
             udf.columns = ['score']
 
             # get metadata
-            udf = pd.merge(udf, self.weekend_df, left_index=True, right_on="package_id")
+            # udf = pd.merge(udf, self.weekend_df, left_index=True, right_on="package_id")
 
             if pos is not None:
                 # filter pos
@@ -209,7 +209,7 @@ class ItemSimilarityRecommender:
             udf.drop(viewed_list, inplace=True, errors='ignore')
 
             # Sort by score
-            udf = udf.sort_values('score', ascending=False).reset_index(drop=True)
+            udf = udf.sort_values('score', ascending=False).reset_index()
 
             res[user] = udf
 

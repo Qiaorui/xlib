@@ -131,5 +131,5 @@ def reduce_mem_usage(df):
     print("___MEMORY USAGE AFTER COMPLETION:___")
     mem_usg = df.memory_usage().sum() / 1024**2
     print("Memory usage is: " ,mem_usg ," MB")
-    print("This is " ,100 *mem_usg /start_mem_usg ,"% of the initial size")
+    print("This is ",100 *mem_usg /start_mem_usg ,"% of the initial size")
     return df
