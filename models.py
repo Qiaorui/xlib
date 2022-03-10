@@ -6,7 +6,7 @@ from . import ds_utils
 import json
 import requests
 import bs4
-BASE_URL = "https://api.weekendesk.com/api/weekend/{}/detail.json?locale=es_ES&client=msite&fetchPageModel=true"
+BASE_URL = ""
 
 col_names = """
 package_id weekend_id country_id region_id deparment_id city_id activity_type room_type room_category trainstation_distance airport_distance
